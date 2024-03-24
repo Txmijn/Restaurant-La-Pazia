@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reserveringen - Admin</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header>
+        <nav> 
+            <a class="nav-link" href="{{ url_for('admin') }}">Home</a> 
+            <a class="nav-link" href="{{ url_for('view_reservations') }}">Reserveringen</a> 
+            <a class="nav-link" href="{{ url_for('view_contacts') }}">Contactberichten</a>
+            <a class="nav-link" href="{{ url_for('view_users') }}">Gebruikers</a> 
+            <a class="nav-link" href="#" onclick="confirmLogout()">Uitloggen</a>   
+        </nav>
+    </header>
+    <div class="admin-pagina">
+        <h2>Reserveringen</h2>
+        <table>
+            <tr>
+                <th>id</th>
+                <th>Voornaam</th>
+                <th>Achternaam</th>
+                <th>Email</th>
+                <th>Telefoonnummer</th>
+                <th>Aantal Personen</th>
+                <th>Datum</th>
+                <th>Actie</th>
+            </tr>
+            {% for reservation in reservations %}
+            <tr id="reservation_{{ reservation[0] }}">
+                <td>{{ reservation[0] }}</td>
+                <td>{{ reservation[1] }}</td>
+                <td>{{ reservation[2] }}</td>
+                <td>{{ reservation[3] }}</td>
+                <td>{{ reservation[4] }}</td>
+                <td>{{ reservation[5] }}</td>
+                <td>{{ reservation[6] }}</td>
+                <td>
+                    <form action="{{ url_for('delete_reservation', reservation_id=reservation[0]) }}" method="post" onsubmit="return confirm('Weet je zeker dat je deze reservering wilt verwijderen?');">
+                        <button type="submit">Verwijderen</button>
+                    </form>
+                    <button onclick="startEdit('{{ reservation[0] }}')" class="edit-button">Bewerken</button>
+                    <button onclick="saveEdit('{{ reservation[0] }}')" class="save-button" style="display: none;">Opslaan</button>
+                </td>               
+            </tr>
+            {% endfor %}
+        </table>
+        <h3>Er worden vandaag {{ datum_vandaag }} {{ aantal_mensen}} gasten verwacht</h3>
+    </div>
+    <script>
+        function confirmLogout() {
+            var confirmation = confirm("Weet je zeker dat je wilt uitloggen?");
+            if (confirmation) {
+                window.location.href = "{{ url_for('logout') }}";
+            }
+        }
+
+        function startEdit(reservationId) {
+            var row = document.getElementById('reservation_' + reservationId);
+            var cells = row.getElementsByTagName('td');
+            for (var i = 1; i < cells.length - 1; i++) {
+                cells[i].setAttribute('contenteditable', true);
+            }
+            var deleteButton = row.querySelector('form button');
+            deleteButton.style.display = 'none';
+            var editButton = row.querySelector('button:nth-child(2)');
+            editButton.style.display = 'none';
+            var saveButton = row.querySelector('button:nth-child(3)');
+            saveButton.style.display = 'inline-block';
+        }
+
+        function saveEdit(reservationId) {
+            var row = document.getElementById('reservation_' + reservationId);
+            var editableCells = row.querySelectorAll('[contenteditable="true"]');
+            var data = {
+                voornaam: editableCells[0].innerText,
+                achternaam: editableCells[1].innerText,
+                email: editableCells[2].innerText,
+                telefoonnummer: editableCells[3].innerText,
+                aantalPersonen: editableCells[4].innerText,
+                datum: editableCells[5].innerText
+            };
+            fetch(`/update_reservation/${reservationId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('Netwerkantwoord was niet ok.');
+                return response.json();
+            })
+            .then(json => {
+                alert('Reservering succesvol bijgewerkt.');
+                location.reload();
+            })
+            .catch(error => {
+                console.error('Er is een probleem met uw fetch-operatie: ', error.message);
+                alert('Er is een fout opgetreden bij het bijwerken.');
+            });
+        }
+    </script>
+</body>
+</html>

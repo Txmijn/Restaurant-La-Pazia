@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contacten - Admin</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header>
+        <nav> 
+            <a class="nav-link" href="{{ url_for('admin') }}">Home</a> 
+            <a class="nav-link" href="{{ url_for('view_reservations') }}">Reserveringen</a> 
+            <a class="nav-link" href="{{ url_for('view_contacts') }}">Contactberichten</a>
+            <a class="nav-link" href="{{ url_for('view_users') }}">Gebruikers</a> 
+            <a class="nav-link" href="#" onclick="confirmLogout()">Uitloggen</a>   
+        </nav>
+    </header>
+    <div class="admin-pagina">
+        <h2>Contacten</h2>
+        <table>
+            <tr>
+                <th>id</th>
+                <th>Voornaam</th>
+                <th>Achternaam</th>
+                <th>Email</th>
+                <th>Vraag</th>
+                <th>Actie</th>  
+            </tr>
+            {% for contact in contacts %}
+            <tr id="contact_{{ contact[0] }}">
+                <td>{{ contact[0] }}</td>
+                <td>{{ contact[1] }}</td>
+                <td>{{ contact[2] }}</td>
+                <td>{{ contact[3] }}</td>
+                <td>{{ contact[4] }}</td>
+                <td>
+                    <form action="{{ url_for('delete_contact', contact_id=contact[0]) }}" method="post" onsubmit="return confirm('Weet je zeker dat je dit contact wilt verwijderen?');">
+                        <button type="submit" class="delete-button">Verwijderen</button>
+                    </form>
+                    <button onclick="startEditContact('{{ contact[0] }}')" class="edit-button">Bewerken</button>
+                    <button onclick="saveEditContact('{{ contact[0] }}')" class="save-button" style="display: none;">Opslaan</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    <script>
+        function confirmLogout() {
+            var confirmation = confirm("Weet je zeker dat je wilt uitloggen?");
+            if (confirmation) {
+                window.location.href = "{{ url_for('logout') }}";
+            }
+        }
+
+        function startEditContact(contactId) {
+            var row = document.getElementById('contact_' + contactId);
+            var cells = row.getElementsByTagName('td');
+            for (var i = 1; i < cells.length - 1; i++) {
+                cells[i].setAttribute('contenteditable', true);
+            }
+            var deleteButton = row.querySelector('.delete-button');
+            deleteButton.style.display = 'none';
+            var editButton = row.querySelector('button:nth-child(2)');
+            editButton.style.display = 'none'; 
+            var saveButton = row.querySelector('button:nth-child(3)');
+            saveButton.style.display = 'inline-block'; 
+        }
+
+        function saveEditContact(contactId) {
+            var row = document.getElementById('contact_' + contactId);
+            var editableCells = row.querySelectorAll('[contenteditable="true"]');
+            var data = {
+                voornaam: editableCells[0].innerText,
+                achternaam: editableCells[1].innerText,
+                email: editableCells[2].innerText,
+                vraag: editableCells[3].innerText
+            };
+            fetch(`/update_contact/${contactId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('Het netwerkantwoord was niet ok.');
+                return response.json();
+            })
+            .then(json => {
+                if (json.success) {
+                    alert('Contact succesvol bijgewerkt.');
+                    location.reload();
+                } else {
+                    alert('Fout bij het bijwerken van het contact.');
+                }
+            })
+            .catch(error => {
+                console.error('Er is een probleem met uw fetch-operatie: ', error.message);
+                alert('Er is een fout opgetreden bij het bijwerken.');
+            });
+        }
+    </script>
+</body>
+</html>

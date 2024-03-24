@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reservering Bevestiging</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="reservering-pagina">
+    <h1>Reservering succesvol ingediend!</h1>
+    </div>
+    <script>
+        setTimeout(function() {
+            window.location.href = "{{ url_for('home') }}";
+        }, 1500); // 1.5 seconden
+    </script>
+</body>
+</html>
