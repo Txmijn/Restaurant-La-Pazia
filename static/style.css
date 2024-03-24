@@ -236,9 +236,7 @@ label {
     color: red;
 }
 
-.error-messages-adminpagina {
-    color: white;
-    background-color: rgba(255, 0, 0, 0.8); 
+.error-messages-adminpagina, .success-messages {
     padding: 20px;
     border-radius: 10px;
     margin: 20px auto;
@@ -248,7 +246,18 @@ label {
     justify-content: center;
     align-items: center;
     text-align: center; 
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.error-messages-adminpagina {
+    background-color: rgba(255, 0, 0, 0.8); 
+    color: white;
+}
+
+.success-messages {
+    background-color: green; 
+    color: white;
+    border-color: #c3e6cb;
 }
 
 .versie {
