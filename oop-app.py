@@ -1,6 +1,6 @@
 from flask import Flask, request, render_template, redirect, url_for, flash, session, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime
+from datetime import datetime, timedelta
 import sqlite3
 
 class DatabaseManager:
@@ -29,7 +29,9 @@ class MyApp:
 
         @self.app.route('/reserveren')
         def reserveren():
-            return render_template('reserveren.html')
+            today = datetime.today().strftime('%Y-%m-%d')
+            max_date = (datetime.today() + timedelta(days=14)).strftime('%Y-%m-%d')
+            return render_template('reserveren.html', today=today, max_date=max_date)
         
         @self.app.route('/reserveren-success')
         def reserveren_success():
@@ -50,14 +52,31 @@ class MyApp:
         @self.app.route('/register', methods=['GET', 'POST'])
         def register():
             if not (session.get('logged_in') and session.get('is_admin')):
-                flash('U heeft niet de benodigde rechten om deze pagina te kunnen bekijken.', 'error')
+                flash('U heeft niet de benodigde rechten om deze pagina te kunnen bekijken.')
                 return redirect(url_for('login'))
-            
+
             if request.method == 'POST':
                 username = request.form['username']
                 password = request.form['password']
+                is_admin = request.form.get('is_admin') == 'on'
+            
+                if len(username) < 5:
+                    flash('Gebruikersnaam moet minstens 5 karakters lang zijn.')
+                    return redirect(url_for('register'))
+
+                if len(password) < 8:
+                    flash('Wachtwoord moet minstens 8 karakters lang zijn.')
+                    return redirect(url_for('register'))
+        
+                if not any(char.isdigit() for char in password):
+                    flash('Wachtwoord moet minstens één cijfer bevatten.')
+                    return redirect(url_for('register'))
+            
+                if not any(char.isalpha() for char in password):
+                    flash('Wachtwoord moet minstens één letter bevatten.')
+                    return redirect(url_for('register'))
+
                 password_hash = generate_password_hash(password)
-                is_admin = request.form.get('is_admin') == 'on'  
 
                 try:
                     with DatabaseManager.get_connection() as conn:
@@ -65,11 +84,12 @@ class MyApp:
                         cur.execute("INSERT INTO users (username, password, is_admin) VALUES (?, ?, ?)", 
                             (username, password_hash, is_admin))
                         conn.commit()
-                        flash('Gebruiker succesvol geregistreerd.')
+                        flash('Gebruiker succesvol geregistreerd.', 'success')
                 except sqlite3.IntegrityError:
                     flash('Deze gebruikersnaam bestaat al.', 'error')
-                return redirect(url_for('view_users'))  
+                return redirect(url_for('register'))
             return render_template('register.html')
+
         
         @self.app.route('/login', methods=['GET', 'POST'])
         def login():
@@ -175,6 +195,10 @@ class MyApp:
             telefoonnummer = request.form['telefoonnummer']
             aantalPersonen = int(request.form['aantalPersonen'])
             datum = request.form['datum']
+            reserveringstijd = request.form['reserveringstijd']
+            laatste_reserveringstijd = datetime.strptime("21:00", "%H:%M").time()
+            ingevoerde_tijd = datetime.strptime(reserveringstijd, "%H:%M").time()
+
             if voornaam.isdigit() or achternaam.isdigit():
                 flash('Error: Gebruik aub alleen letters bij uw voornaam en of achternaam.')
                 return redirect(url_for('reserveren'))  
@@ -184,10 +208,13 @@ class MyApp:
             elif not telefoonnummer.isdigit():
                 flash('Error: Telefoonnummer is niet geldig. Gebruik alleen cijfers.')
                 return redirect(url_for('reserveren'))
+            elif ingevoerde_tijd > laatste_reserveringstijd:
+                flash('Error: Reserveren na 21:00 is niet toegestaan.')
+                
             with DatabaseManager.get_connection() as conn:
                 cur = conn.cursor()
-                cur.execute("INSERT INTO reserveringen (voornaam, achternaam, email, telefoonnummer, aantalPersonen, datum) VALUES (?, ?, ?, ?, ?, ?)",
-                    (voornaam, achternaam, email, telefoonnummer, aantalPersonen, datum))
+                cur.execute("INSERT INTO reserveringen (voornaam, achternaam, email, telefoonnummer, aantalPersonen, datum, reserveringstijd) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                    (voornaam, achternaam, email, telefoonnummer, aantalPersonen, datum, reserveringstijd))
                 conn.commit()
             return redirect(url_for('reserveren_success'))  
 
@@ -215,13 +242,11 @@ class MyApp:
                     cur.execute("UPDATE reserveringen SET id = (SELECT COUNT(*) FROM reserveringen r WHERE r.id <= reserveringen.id)")
                     cur.execute("SELECT * FROM reserveringen ORDER BY datum")
                     reservations = cur.fetchall()
-
                     vandaag = datetime.now()
                     vandaag_str = vandaag.strftime('%Y-%m-%d')
                     cur.execute("SELECT SUM(aantalPersonen) FROM reserveringen WHERE datum = ?", (vandaag_str,))
                     aantal_mensen_vandaag = cur.fetchone()[0] or 0
                     datum_vandaag = vandaag.strftime('%d-%m-%Y')
-
                     return render_template('view-reserveringen.html', reservations=reservations, aantal_mensen=aantal_mensen_vandaag, datum_vandaag=datum_vandaag)
             else:
                 return redirect(url_for('login')) 
