@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home - Admin</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header>
+        <nav>
+            <a class="nav-link" href="{{ url_for('admin') }}">Home</a>
+            <a class="nav-link" href="{{ url_for('view_reservations') }}">Reserveringen</a>
+            <a class="nav-link" href="{{ url_for('view_contacts') }}">Contactberichten</a>
+            <a class="nav-link" href="{{ url_for('view_users') }}">Gebruikers</a>
+            <a class="nav-link" href="#" onclick="confirmLogout()">Uitloggen</a>
+        </nav>
+    </header>
+    <div class="admin-pagina">
+        <h2>Welkom, {{ session.get('username', 'Gebruiker') }}!</h2>
+        <p>Bekijk hier de reserveringen, de mensen die contact hebben opgenomen en verschillende statistieken!</p>
+        <div class="links">
+            <a class="nav-link admin-link" href="{{ url_for('view_reservations') }}">Bekijk reserveringen</a>
+            <a class="nav-link admin-link" href="{{ url_for('view_contacts') }}">Bekijk contactberichten</a>
+        </div>
+        <h2>Statistieken</h2>
+        <div class="statistiek-container">
+            <div class="statistiek-kaart">
+                <h4>Aantal reserveringen</h4>
+                <p>{{ totaal_reserveringen }}</p>
+            </div>
+            <div class="statistiek-kaart">
+                <h4>Reserveringen voor vandaag</h4>
+                <p>{{ reserveringen_vandaag }}</p>
+            </div>
+            <div class="statistiek-kaart">
+                <h4>Totaal aantal contactberichten</h4>
+                <p>{{ totaal_contactberichten }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="versie">Versie 1.0.2</div>
+    <script>
+        function confirmLogout() {
+            if (confirm("Weet je zeker dat je wilt uitloggen?")) {
+                window.location.href = "{{ url_for('logout') }}";
+            }
+        }
+    </script>
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+        <div class="error-messages-adminpagina">
+            {% for message in messages %}
+                <p>{{ message }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endwith %}
+</body>
+</html>

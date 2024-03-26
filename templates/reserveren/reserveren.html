@@ -20,7 +20,8 @@
     <main>
         <div class="reserveren">
             <h1>Reserveren La Pazia</h1>
-            <p>Voer hieronder uw gegevens in, dan nemen wij zo spoedig mogelijk contact met u op!</p>
+            <p>Voer hieronder uw gegevens in om een reservering in te dienen voor ons restaurant.</p>
+            <p>U kunt maximaal 2 weken van te voren reserveren.</p>
             {% with messages = get_flashed_messages() %}
             {% if messages %}
                 <div class="flash-messages">
@@ -33,16 +34,12 @@
             <form action="/submit-reservation" method="post"> 
                 <label for="voornaam">Voornaam:</label>
                 <input type="text" id="voornaam" name="voornaam" placeholder="Voornaam" required>
-
                 <label for="achternaam">Achternaam:</label>
                 <input type="text" id="achternaam" name="achternaam" placeholder="Achternaam" required>
-
                 <label for="email">Email:</label>
                 <input type="email" id="email" name="email" placeholder="Email" required>
-
                 <label for="telefoonnummer">Telefoonnummer:</label>
                 <input type="tel" id="telefoonnummer" name="telefoonnummer" placeholder="Telefoonnummer" required>
-
                 <label for="aantalPersonen">Aantal personen
                     </label>
                     <select id="aantalPersonen" name="aantalPersonen" required>
@@ -55,14 +52,22 @@
                     <option value="7">7 personen</option>
                     <option value="8">8 personen</option>
                     </select>
-                                <label for="datum">Datum:</label>
-                                <input type="date" id="datum" name="datum" required>
-                                <input type="submit" value="Verzenden">
-                            </form>
-                            <p>Voor meer dan 8 personen, neem dan even telefonisch contact met ons op, zodat we kunnen kijken naar de mogelijkheden.</p>
-                            <p>Contactgegevens La Pazia:</p> 
-                            <p>E-mail: reserveren@lapazia.nl</p>
-                            <p>Telefoonnummer: 050 85 05 822</p>
+                    <label for="datum">Datum:</label>
+                    <input type="date" id="datum" name="datum" required min="{{ today }}" max="{{ max_date }}">
+                    <label for="reserveringstijd">Tijdstip:</label>
+                    <select id="reserveringstijd" name="reserveringstijd" required>
+                    <option value="17:00">17:00</option>
+                    <option value="18:00">18:00</option>
+                    <option value="19:00">19:00</option>
+                    <option value="20:00">20:00</option>
+                    <option value="21:00">21:00</option>
+                    </select>
+                    <input type="submit" value="Verzenden">
+                    </form>
+                <p>Voor meer dan 8 personen, neem dan even telefonisch contact met ons op, zodat we kunnen kijken naar de mogelijkheden.</p>
+                <p>Contactgegevens La Pazia:</p> 
+                <p>E-mail: reserveren@lapazia.nl</p>
+                <p>Telefoonnummer: 050 85 05 822</p>
         </div>
     </main>
 </body>

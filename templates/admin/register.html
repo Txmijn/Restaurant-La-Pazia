@@ -32,14 +32,14 @@
                     <button type="submit" class="login-button">Registreren</button>
                 </div>
             </form>
-            {% with messages = get_flashed_messages() %}
-                {% if messages %}
-                    <div class="error-messages-adminpagina">
-                        {% for message in messages %}
-                            <p>{{ message }}</p>
-                        {% endfor %}
-                    </div>
-                {% endif %}
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                <div class="{{ 'success-messages' if category == 'success' else 'error-messages-adminpagina' }}">
+                    <p>{{ message }}</p>
+                </div>
+                {% endfor %}
+            {% endif %}
             {% endwith %}
         </div>
         <script>

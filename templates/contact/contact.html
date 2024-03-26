@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact - La Pazia</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header>
+        <nav>
+            <a class="nav-link" href="{{ url_for('home') }}">Home</a>
+            <a class="nav-link" href="{{ url_for('reserveren') }}">Reserveren</a>
+            <a class="nav-link" href="{{ url_for('menu') }}">Menukaart</a>
+            <a class="nav-link" href="{{ url_for('overons') }}">Over Ons</a>
+            <a class="nav-link" href="{{ url_for('contact') }}">Contact</a>
+            <a class="login-button" href="{{ url_for('login') }}">👤</a> 
+        </nav>
+    </header>
+    <main>
+        <div class="contactpagina">
+            <h1>Contact</h1>
+            <p>Heeft u een vraag of opmerking? Laat het gerust hieronder weten en wij proberen dan zo snel mogelijk contact met u op te nemen!</p>
+            {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for message in messages %}
+                        <p>{{ message }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            {% endwith %}
+            <form action="/submit-contact" method="post"> 
+                <input type="text" id="voornaam" name="voornaam" placeholder="Voornaam" required>
+                <input type="text" id="achternaam" name="achternaam" placeholder="Achternaam" required>
+                <input type="email" id="emailadres" name="emailadres" placeholder="Email" required>
+                <textarea id="vraag" name="vraag" placeholder="Uw vraag of opmerking" required></textarea>
+                <input type="submit" value="Verzenden">
+            </form>
+        </div>
+    </main>
+</body>
+</html>

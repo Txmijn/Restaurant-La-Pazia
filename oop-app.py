@@ -25,29 +25,29 @@ class MyApp:
     def add_routes(self):
         @self.app.route('/')
         def home():
-            return render_template('index.html')
+            return render_template('home/index.html')
 
         @self.app.route('/reserveren')
         def reserveren():
             today = datetime.today().strftime('%Y-%m-%d')
             max_date = (datetime.today() + timedelta(days=14)).strftime('%Y-%m-%d')
-            return render_template('reserveren.html', today=today, max_date=max_date)
+            return render_template('reserveren/reserveren.html', today=today, max_date=max_date)
         
         @self.app.route('/reserveren-success')
         def reserveren_success():
-            return render_template("reserveren-success.html")
+            return render_template("reserveren/reserveren-success.html")
         
         @self.app.route('/menu')
         def menu():
-            return render_template('menu.html')
+            return render_template('menu/menu.html')
 
         @self.app.route('/overons')
         def overons():
-            return render_template('overons.html')
+            return render_template('overons/overons.html')
 
         @self.app.route('/contact')
         def contact():
-            return render_template('contact.html')
+            return render_template('contact/contact.html')
         
         @self.app.route('/register', methods=['GET', 'POST'])
         def register():
@@ -88,7 +88,7 @@ class MyApp:
                 except sqlite3.IntegrityError:
                     flash('Deze gebruikersnaam bestaat al.', 'error')
                 return redirect(url_for('register'))
-            return render_template('register.html')
+            return render_template('admin/register.html')
 
         
         @self.app.route('/login', methods=['GET', 'POST'])
@@ -113,12 +113,12 @@ class MyApp:
                     session['logged_in'] = True
                     session['username'] = username
                     session['is_admin'] = user['is_admin'] == 1
-                    return redirect(url_for('admin'))
+                    return redirect(url_for('admin/admin'))
                 else:
                     flash('Ongeldige gebruikersnaam of wachtwoord.')
-                    return redirect(url_for('login'))
+                    return redirect(url_for('login/login'))
             else:
-                return render_template('login.html')
+                return render_template('login/login.html')
 
         @self.app.route('/admin')
         def admin():
@@ -140,7 +140,7 @@ class MyApp:
                     cur.execute("SELECT COUNT(*) FROM reserveringen WHERE datum = ?", (vandaag,))
                     reserveringen_vandaag = cur.fetchone()[0]
 
-                    return render_template('admin.html', totaal_reserveringen=totaal_reserveringen, totaal_contactberichten=totaal_contactberichten, totaal_gebruikers=totaal_gebruikers, reserveringen_vandaag=reserveringen_vandaag)
+                    return render_template('admin/admin.html', totaal_reserveringen=totaal_reserveringen, totaal_contactberichten=totaal_contactberichten, totaal_gebruikers=totaal_gebruikers, reserveringen_vandaag=reserveringen_vandaag)
             else:
                 return redirect(url_for('login'))
             
@@ -232,7 +232,7 @@ class MyApp:
                 cur.execute("INSERT INTO contact (voornaam, achternaam, emailadres, vraag) VALUES (?, ?, ?, ?)",
                     (voornaam, achternaam, emailadres, vraag))
                 conn.commit()
-            return render_template('contact-success.html')  
+            return render_template('contact/contact-success.html')  
 
         @self.app.route('/view_reservations')
         def view_reservations():
@@ -247,7 +247,7 @@ class MyApp:
                     cur.execute("SELECT SUM(aantalPersonen) FROM reserveringen WHERE datum = ?", (vandaag_str,))
                     aantal_mensen_vandaag = cur.fetchone()[0] or 0
                     datum_vandaag = vandaag.strftime('%d-%m-%Y')
-                    return render_template('view-reserveringen.html', reservations=reservations, aantal_mensen=aantal_mensen_vandaag, datum_vandaag=datum_vandaag)
+                    return render_template('admin/view-reserveringen.html', reservations=reservations, aantal_mensen=aantal_mensen_vandaag, datum_vandaag=datum_vandaag)
             else:
                 return redirect(url_for('login')) 
              
@@ -291,7 +291,7 @@ class MyApp:
                     cur.execute("UPDATE contact SET id = (SELECT COUNT(*) FROM contact c WHERE c.id <= contact.id)")
                     cur.execute("SELECT * FROM contact")
                     contacts = cur.fetchall()
-                return render_template('view-contacten.html', contacts=contacts)
+                return render_template('admin/view-contacten.html', contacts=contacts)
             else:
                 return redirect(url_for('login'))
 
@@ -338,7 +338,7 @@ class MyApp:
                 if current_user_admin_status:
                     cur.execute("SELECT id, username, password, is_admin, last_login FROM users")
                     users = cur.fetchall()
-                    return render_template('view-users.html', users=users)
+                    return render_template('admin/view-users.html', users=users)
                 else:
                     flash('U heeft niet de benodigde rechten om deze pagina te kunnen bekijken.')
                     return redirect(url_for('admin'))
