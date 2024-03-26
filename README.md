@@ -3,9 +3,9 @@
  - Gemaakt door Tijmen Pera en Thomas Koning
 
    Admin account (Superadmin):
-   Inlognaam: Admin
-   Wachtwoord: Admin
+   - Inlognaam: admin
+   - Wachtwoord: admin
 
    Gebruiker account:
-   Inlognaam: Gebruiker
-   Wachtwoord: Wachtwoord
+   - Inlognaam: gebruiker
+   - Wachtwoord: wachtwoord
