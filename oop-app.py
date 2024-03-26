@@ -113,10 +113,10 @@ class MyApp:
                     session['logged_in'] = True
                     session['username'] = username
                     session['is_admin'] = user['is_admin'] == 1
-                    return redirect(url_for('admin/admin'))
+                    return redirect(url_for('admin'))
                 else:
                     flash('Ongeldige gebruikersnaam of wachtwoord.')
-                    return redirect(url_for('login/login'))
+                    return redirect(url_for('login'))
             else:
                 return render_template('login/login.html')
 
