@@ -6,6 +6,6 @@
    - Inlognaam: admin
    - Wachtwoord: admin
 
-   Gebruiker account:
-   - Inlognaam: gebruiker
-   - Wachtwoord: wachtwoord
+   Gebruiker test account:
+   - Inlognaam: test
+   - Wachtwoord: test
