@@ -261,11 +261,12 @@ class MyApp:
                 telefoonnummer = data['telefoonnummer']
                 aantalPersonen = data['aantalPersonen']
                 datum = data['datum']
+                reserveringstijd = data['reserveringstijd']
 
                 with DatabaseManager.get_connection() as conn:
                     cur = conn.cursor()
-                    cur.execute("UPDATE reserveringen SET voornaam=?, achternaam=?, email=?, telefoonnummer=?, aantalPersonen=?, datum=? WHERE id=?",
-                                (voornaam, achternaam, email, telefoonnummer, aantalPersonen, datum, reservation_id))
+                    cur.execute("UPDATE reserveringen SET voornaam=?, achternaam=?, email=?, telefoonnummer=?, aantalPersonen=?, datum=?, reserveringstijd=? WHERE id=?",
+                                (voornaam, achternaam, email, telefoonnummer, aantalPersonen, datum, reserveringstijd, reservation_id))
                     conn.commit()
                 return jsonify({'success': True})
             else:
